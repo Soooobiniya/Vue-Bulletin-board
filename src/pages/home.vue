@@ -71,8 +71,7 @@ const itemssss = [
 ];
 </script>
 
-<style>
-/* <-- remove scoped here if you have it*/
+<style scoped>
 .v-carousel__controls {
   color: white;
   width: 10%;

@@ -72,7 +72,7 @@ const searchText = ref("");
 const searchActive = ref(false);
 
 const getList = async () => {
-  const res = await getPostList("Test001");
+  const res = await getPostList("Questions");
   postList.value = res.data;
 };
 getList();
@@ -84,11 +84,11 @@ const searchQuestions = async () => {
 
   let res;
   if (selectType.value === "제목") {
-    res = await searchPost("Test001", searchText.value, "title");
+    res = await searchPost("Questions", searchText.value, "title");
   } else if (selectType.value === "내용") {
-    res = await searchPost("Test001", searchText.value, "body");
+    res = await searchPost("Questions", searchText.value, "body");
   } else {
-    res = await searchPost("Test001", searchText.value, "all");
+    res = await searchPost("Questions", searchText.value, "all");
   }
   postList.value = res.data.items;
 
