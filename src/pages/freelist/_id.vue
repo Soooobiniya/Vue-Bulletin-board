@@ -1,6 +1,6 @@
 <template>
-  <h2>질문게시판 상세</h2>
-  <Post repoName="Question" />
+  <h2>자유게시판 상세</h2>
+  <Post repoName="Free" />
 </template>
 
 <script setup>

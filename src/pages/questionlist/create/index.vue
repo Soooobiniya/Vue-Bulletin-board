@@ -1,6 +1,6 @@
 <template>
   <h2>질문게시판 글쓰기</h2>
-  <PostWriteForm />
+  <PostWriteForm repoName='Question'/>
 </template>
 
 <script setup>

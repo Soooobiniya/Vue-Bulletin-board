@@ -28,6 +28,7 @@ nav a {
   color: #2c3e50;
 }
 
+
 nav a.router-link-exact-active {
   text-decoration: none;
   color: #42b983;

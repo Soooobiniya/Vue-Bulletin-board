@@ -17,21 +17,31 @@
   </v-row>
   <v-row class="boards-contatiner">
     <v-col class="board-title">
-      질문게시판
-      <v-card class="board-card mx-auto">
-        <v-list :items="itemssss" item-title="name" item-value="id"></v-list>
+      <div @click="moveToBoard('QuestionList')" :style="{ cursor: 'pointer' }">
+        질문게시판
+      </div>
+      <v-card v-if="questions" class="board-card mx-auto">
+        <v-list :items="questions" item-title="title"></v-list>
       </v-card>
     </v-col>
     <v-col class="board-title">
-      자유게시판
-      <v-card class="board-card mx-auto">
-        <v-list :items="itemssss" item-title="name" item-value="id"></v-list>
+      <div @click="moveToBoard('FreeList')" :style="{ cursor: 'pointer' }">
+        자유게시판
+      </div>
+      <v-card v-if="frees" class="board-card mx-auto">
+        <v-list :items="frees" item-title="title"></v-list>
       </v-card>
     </v-col>
   </v-row>
 </template>
 
 <script setup>
+import { getPostList } from "@/apis/api/index.js";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
 const items = [
   {
     src: "https://blog.kakaocdn.net/dn/dAQdT9/btqA6pSGU0J/yQXubF3i4kkiStb0zfM580/img.jpg",
@@ -47,28 +57,32 @@ const items = [
   },
 ];
 
-const itemssss = [
-  {
-    name: "Item #1",
-    id: 1,
-  },
-  {
-    name: "Item #2",
-    id: 2,
-  },
-  {
-    name: "Item #3",
-    id: 3,
-  },
-  {
-    name: "Item #4",
-    id: 4,
-  },
-  {
-    name: "Item #5",
-    id: 5,
-  },
-];
+const questions = ref(null);
+const frees = ref(null);
+
+const getQuestions = async () => {
+  const res = await getPostList("Question");
+  questions.value = res.data;
+  if (questions.value.length > 5) {
+    questions.value.splice(5);
+  }
+};
+getQuestions();
+
+const getFrees = async () => {
+  const res = await getPostList("Free");
+  frees.value = res.data;
+  if (frees.value.length > 5) {
+    frees.value.splice(5);
+  }
+};
+getFrees();
+
+const moveToBoard = (boardName) => {
+  router.push({
+    name: boardName,
+  });
+};
 </script>
 
 <style scoped>
@@ -88,7 +102,7 @@ const itemssss = [
   font-weight: bold;
   text-align: start;
   margin: 0 70px;
-  color:rgb(0, 70, 52);
+  color: rgb(0, 70, 52);
 }
 
 .board-card {

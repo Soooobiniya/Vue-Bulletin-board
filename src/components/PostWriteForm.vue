@@ -26,7 +26,7 @@
         </div>
 
         <div :style="{ textAlign: 'right', margin: '0 20px 0 20px' }">
-          <v-btn class="submit-btn" type="submit">
+          <v-btn class="submit-btn" @click="validCheck" :disabled="isClick">
             {{ editing ? "수정하기" : "등록하기" }}
           </v-btn>
         </div>
@@ -42,6 +42,10 @@ import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 const props = defineProps({
+  repoName: {
+    type: String,
+    required: true
+  },
   editing: {
     type: Boolean,
     default: false,
@@ -59,15 +63,15 @@ const originalPost = ref(null);
 
 const titleError = ref("");
 const bodyError = ref("");
+const isClick = ref(false);
 
 let postId = route.params.id;
 const getPostForEdit = async () => {
   try {
-    // const res = getPost("Test001", postId)
-    const res = await instance.get(`repos/Soooobiniya/Test001/issues/${postId}`);
+    const res = await getPost(props.repoName, postId)
     console.log(res.data);
     post.value.title = res.data.title;
-    post.value.body = res.data.body; // 값을 변경해도 post value만 변경되고 originalPost는 그대로
+    post.value.body = res.data.body;
 
     originalPost.title = { ...res.data.title };
     originalPost.body = { ...res.data.body };
@@ -80,7 +84,7 @@ if (props.editing) {
   getPostForEdit(); // editing === true일 때만 post 정보들을 가져옴
 }
 
-const onSave = async () => {
+const validCheck = () => {
   titleError.value = "";
   bodyError.value = "";
   if (!post.value.title) {
@@ -92,23 +96,27 @@ const onSave = async () => {
     return;
   }
 
+  isClick.value = true;
+
+  onSave();
+}
+
+const onSave = async () => {
   try {
     let res;
     if (props.editing) {
-    //   res = editPost("Test001", postId, post.value)
-    res = await instance.patch(`repos/Soooobiniya/Test001/issues/${postId}`, post.value);
+      res = await editPost(props.repoName, postId, post.value)
       originalPost.title = { ...res.data.title };
       originalPost.body = { ...res.data.body };
     } else {
-    //   res = createPost("Test001", post.value)
-      res = await instance.post("repos/Soooobiniya/Test001/issues", post.value);
+      res = await createPost(props.repoName, post.value)
       postId = res.data.number;
       post.value.title = "";
       post.value.body = "";
     }
 
     router.push({
-      name: "Question",
+      name: props.repoName,
       params: {
         id: postId,
       },

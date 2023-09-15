@@ -1,6 +1,6 @@
 <template>
   <h2>자유게시판</h2>
-  <PostList />
+  <PostList repoName="Free" />
 </template>
 
 <script setup>

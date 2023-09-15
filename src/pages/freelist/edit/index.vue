@@ -1,6 +1,6 @@
 <template>
-  <h2>질문게시판 수정하기</h2>
-  <PostWriteForm repoName='Question' :editing="true"/>
+  <h2>자유게시판 수정하기</h2>
+  <PostWriteForm repoName='Free' :editing="true"/>
 </template>
 
 <script setup>

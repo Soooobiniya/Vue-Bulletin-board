@@ -1,5 +1,4 @@
 <template>
-
   <v-row :style="{ marginTop: '20px' }">
     <v-row>
       <v-col cols="12" md="2">
@@ -15,11 +14,11 @@
           label="검색키워드"
           :style="{ marginLeft: '50px' }"
           v-model="searchText"
-          @keyup.enter="searchQuestions"
+          @keyup.enter="searchPosts"
         />
       </v-col>
       <v-col cols="12" md="1">
-        <v-btn @click="searchQuestions">검색</v-btn>
+        <v-btn @click="searchPosts">검색</v-btn>
       </v-col>
       <v-col v-if="searchActive" cols="12" md="1">
         <v-btn color="red" @click="undoSearch">검색 취소</v-btn>
@@ -31,18 +30,18 @@
   </v-row>
 
   <v-table class="text-left" :style="{ margin: '10px 90px' }">
-    <thead>
-      <tr>
-        <th>번호</th>
-        <th>제목</th>
-        <th>작성자</th>
-        <th>작성일</th>
+    <thead bgcolor="#c8e6c9">
+      <tr class="table-header">
+        <th width="0.5%">번호</th>
+        <th width="11%">제목</th>
+        <th width="2%">작성자</th>
+        <th width="2%">작성일</th>
       </tr>
     </thead>
-    <tbody v-if="postList.length">
-      <tr v-for="item in postList" :key="item.id">
-        <td>{{ item.number }}</td>
-        <td @click="moveToId(item.number)" :style="{ cursor: 'pointer' }">
+    <tbody v-if="postList">
+      <tr v-for="(item, i) in postList" :key="item.id">
+        <td>{{ postList.length - i }}</td>
+        <td @click="moveToId(item.number)" class="table-title">
           {{ item.title }}
         </td>
         <td>
@@ -55,14 +54,33 @@
   </v-table>
 
   <div v-if="!postList.length" class="emptyCase">등록된 게시글이 없습니다.</div>
+  <!-- <div v-if="postList.length" class="text-center">
+    <v-pagination
+      v-model="currentPage"
+      :length="numOfPages"
+      rounded="circle"
+    ></v-pagination>
+  </div> -->
 </template>
 
 <script setup>
-import instance from "@/apis/utils/instance.js";
 import { getPostList, searchPost } from "@/apis/api/index.js";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { dateFormatting } from "@/composables/dateFormatting.js";
+
+const props = defineProps({
+  repoName: {
+    type: String,
+    required: true,
+  },
+});
+
+// const currentPage = ref(1);
+// let numOfPosts = ref(0);
+// const numOfPages = computed(() => {
+//   return Math.ceil(numOfPosts.value / 10);
+// });
 
 const router = useRouter();
 const searchTypes = ["제목", "내용"];
@@ -73,36 +91,28 @@ const searchText = ref("");
 const searchActive = ref(false);
 
 const getList = async () => {
-  try {
-    // const res = await getPostList("Test001");
-    const res = await instance.get("repos/Soooobiniya/Test001/issues");
-    postList.value = res.data;
-  } catch (err) {
-    console.log(err);
-  }
+  const res = await getPostList(props.repoName);
+  postList.value = res.data;
+  // numOfPosts.value = postList.value.length
+  // console.log(numOfPages)
 };
 getList();
 
-const searchQuestions = async () => {
+const searchPosts = async () => {
   if (!searchText) {
     getList();
   }
+
   let res;
-  // const res = searchPost("Test001", searchText.value);
   if (selectType.value === "제목") {
-    res = await instance.get(
-      `search/issues?q=${searchText.value}+in:title+repo:Soooobiniya/Test001`
-    );
+    res = await searchPost(props.repoName, searchText.value, "title");
   } else if (selectType.value === "내용") {
-    res = await instance.get(
-      `search/issues?q=${searchText.value}+in:body+repo:Soooobiniya/Test001`
-    );
+    res = await searchPost(props.repoName, searchText.value, "body");
   } else {
-    res = await instance.get(
-      `search/issues?q=${searchText.value}+repo:Soooobiniya/Test001`
-    );
+    res = await searchPost(props.repoName, searchText.value, "all");
   }
   postList.value = res.data.items;
+
   if (searchText.value !== "") {
     searchActive.value = true;
   }
@@ -112,25 +122,40 @@ const undoSearch = async () => {
   getList();
   searchActive.value = false;
   searchText.value = "";
+  selectType.value = "";
 };
 
 const moveToCreatePage = () => {
   router.push({
-    name: "QuestionCreate",
+    name: props.repoName + "Create",
   });
 };
 
-const moveToId = (questionId) => {
+const moveToId = (id) => {
   router.push({
-    name: "Question",
+    name: props.repoName,
     params: {
-      id: questionId,
+      id: id,
     },
   });
 };
 </script>
 
 <style>
+.table {
+  table-layout: fixed;
+}
+
+.table-title {
+  
+  cursor: pointer;
+  /* width: 500px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: block; */
+}
+
 .profile-img {
   width: 25px;
   border-radius: 100%;

@@ -3,7 +3,7 @@ import instance from "../utils/instance";
 // 게시물 리스트
 export const getPostList = async (repoName) => {
     try {
-        return await instance.get(`repos/Soooobiniya/${repoName}/issues`);
+        return await instance.get(`repos/Soooobiniya/${repoName}/issues?per_page=10&page=1`);
     } catch (err) {
         console.log(err);
     }
@@ -37,9 +37,9 @@ export const editPost = (repoName, id, data) => {
 }
 
 // 게시물 삭제 (state: open -> closed)
-export const deletePost = async (id) => {
+export const deletePost = async (repoName, id) => {
     try {
-        return await instance.patch(`repos/Soooobiniya/Test001/issues/${id}`, { "state": "closed" });
+        return await instance.patch(`repos/Soooobiniya/${repoName}/issues/${id}`, { "state": "closed" });
     } catch (err) {
         console.log(err);
     }
